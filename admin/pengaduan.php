@@ -95,7 +95,7 @@
 
                                         <input type="submit" name="tanggapi" value="Kirim" class="btn right" style="margin: 0px 10px 0px 10px">
                                         <!-- <div class="modal-footer col s12"> -->
-                            <a href="#!" class="modal-close btn right">Kembali</a>
+                            <a href="#!" class="modal-close btn right red">Kembali</a>
                         <!-- </div> -->
                                     </div>
                                 </form>
