@@ -17,7 +17,10 @@
 	<?php 
 		$no=1;
 		$query = mysqli_query($koneksi,"SELECT * FROM pengaduan INNER JOIN masyarakat ON pengaduan.nik=masyarakat.nik INNER JOIN tanggapan ON pengaduan.id_pengaduan=tanggapan.id_pengaduan INNER JOIN petugas ON tanggapan.id_petugas=petugas.id_petugas ORDER BY tanggapan.id_pengaduan DESC");
-		while ($r=mysqli_fetch_assoc($query)) { ?>
+		while ($r=mysqli_fetch_assoc($query)) { 
+			$tgl_tanggapanDataArray = json_decode($r['tgl_tanggapan'], true);
+			$tgl_tanggapanData = isset($tgl_tanggapanDataArray[0]) ? $tgl_tanggapanDataArray[0] : null; ?>
+		
 		<tr>
 			<td><?php echo $no++; ?></td>
 			<td><?php echo $r['nik']; ?></td>
@@ -25,7 +28,7 @@
 			<td><?php echo $r['judul']; ?></td>
 			<td><?php echo $r['nama_petugas']; ?></td>
 			<td><?php echo $r['tgl_pengaduan']; ?></td>
-			<td><?php echo $r['tgl_tanggapan']; ?></td>
+			<td><?php echo $tgl_tanggapanData; ?></td>
 			<td><?php echo $r['status']; ?></td>
 			<td><a class="btn blue modal-trigger" href="#more?id_tanggapan=<?php echo $r['id_tanggapan'] ?>">More</a> </td>
 		
