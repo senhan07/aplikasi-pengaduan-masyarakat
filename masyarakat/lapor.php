@@ -2,7 +2,8 @@
 
     include('../conn/koneksi.php');
 
-        $tgl = date('Y-m-d');
+        date_default_timezone_set('Asia/Jakarta');
+        $tgl = date('Y-m-d H:i:s');
 		$no=1;
 		$pengaduan = mysqli_query($koneksi,"SELECT * FROM pengaduan INNER JOIN masyarakat ON pengaduan.nik=masyarakat.nik");
 		 { ?>
@@ -154,7 +155,7 @@
 
 
 		<div class="input-box">
-                <label for="foto">Gambar</label>
+                <label for="foto">Sertakan Bukti Pengaduan</label>
                 <div class="file-input-wrapper">
                     <input type="file" name="foto" required="required">
                 </div>
@@ -171,7 +172,7 @@
 	 if(isset($_POST['kirim'])){
 	 	$nik = $_SESSION['data']['nik'];
 		
-	 	$tgl = date('Y-m-d');
+	 	$tgl = date('Y-m-d H:i:s');
 
 
 	 	$foto = $_FILES['foto']['name'];

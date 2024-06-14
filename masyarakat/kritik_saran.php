@@ -10,9 +10,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $query = "INSERT INTO kritik_saran (nama, kritik_saran, tanggal) VALUES ('$nama', '$kritik_saran', '$tanggal')";
     if(mysqli_query($koneksi, $query)){
-        echo "<script>alert('Kritik dan Saran berhasil dikirim.');window.location='index.php?p=kritik_saran';</script>";
+        echo "<script>alert('Komentar berhasil dikirim.');window.location='index.php?p=kritik_saran';</script>";
     } else {
-        echo "<script>alert('Gagal mengirim Kritik dan Saran.');window.location='index.php?p=kritik_saran';</script>";
+        echo "<script>alert('Gagal mengirim Komentar.');window.location='index.php?p=kritik_saran';</script>";
     }
 }
 

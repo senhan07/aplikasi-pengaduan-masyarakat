@@ -61,7 +61,7 @@
 					$maxIterations = max($numTanggapan, $numBukti);
 					for($i = 0; $i < $maxIterations; $i++) {
 					$tanggapan = isset($tanggapanData[$i]) ? $tanggapanData[$i] : '';
-					$bukti = isset($buktiData[$i]) ? $buktiData[$i]['nama'] : '';
+					$bukti = isset($buktiData[$i]) ? $buktiData[$i] : '';
 					echo "<br><b>Tanggapan " . ($i + 1) . "</b><br>";
 					echo "<br>";
 					echo "<p>$tanggapan</p>";

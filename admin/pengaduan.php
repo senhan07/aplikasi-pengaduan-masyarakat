@@ -18,7 +18,11 @@
         .select-dropdown.dropdown-trigger {
             color: black !important; /* Override MaterializeCSS default styles */
         }
-    </style>
+
+        td,tr,th {
+        text-align: center;
+        }
+        </style>
 </head>
 <body>
 
@@ -32,6 +36,7 @@
                 <th>Nama</th>
                 <th>Judul Laporan</th>
                 <th>Tanggal Masuk</th>
+                <th>Jam Laporan</th>
                 <th>Status</th>
                 <th>Prioritas</th>
                 <th>Opsi</th>
@@ -47,7 +52,9 @@
                     <td><?php echo $r['nik']; ?></td>
                     <td><?php echo $r['nama']; ?></td>
                     <td><?php echo $r['judul']; ?></td>
-                    <td><?php echo $r['tgl_pengaduan']; ?></td>
+                    <!-- <td><?php echo $r['tgl_pengaduan']; ?></td> -->
+                    <td><?php echo date('Y-m-d', strtotime($r['tgl_pengaduan'])); ?></td>
+                    <td><?php echo date('H:i:s', strtotime($r['tgl_pengaduan'])); ?></td>
                     <td><?php echo $r['status']; ?></td>
                     <td>
                         <select class="filter_status" style="color: black;" data-id-pengaduan="<?php echo $r['id_pengaduan']; ?>">
@@ -91,9 +98,9 @@
                                         <label for="foto" style="color:red;">*) Hanya bisa file dengan ekstensi JPG, JPEG, PNG dan maksimal ukuran 5MB</label>
                                     </div>
                                     <div class="col s12 input-field">
-                                        <input type="submit" name="tambahTanggapi" value="Tambah Tanggapan" class="btn right">
+                                        <input type="submit" name="tambahTanggapi" value="Tanggapan Berlanjut" class="btn right">
 
-                                        <input type="submit" name="tanggapi" value="Kirim" class="btn right" style="margin: 0px 10px 0px 10px">
+                                        <input type="submit" name="tanggapi" value="Tanggapan Selesai" class="btn right" style="margin: 0px 10px 0px 10px">
                                         <!-- <div class="modal-footer col s12"> -->
                             <a href="#!" class="modal-close btn right red">Kembali</a>
                         <!-- </div> -->
@@ -104,7 +111,8 @@
 
                             <?php 
                                 if(isset($_POST['tanggapi'])){
-                                    $tgl = date('Y-m-d');
+                                    date_default_timezone_set('Asia/Jakarta');
+                                    $tgl = date('Y-m-d H:i:s');
                                     $tanggapan = $_POST['tanggapan']; // Get the response message directly, no need to encode it again
                                     $bukti = $_FILES['bukti']['name'];
                                     $folder = './../img/';
@@ -113,7 +121,7 @@
                                     $eks = $pecah['1'];
                                     $size = $_FILES['bukti']['size'];
                                     $namabukti = date('dmYis').$bukti;
-                                    $namabukti_json = json_encode(array('nama' => $namabukti));
+                                    $namabukti_json = json_encode($namabukti);
                                 
                                     if($bukti != ""){
                                         if(in_array($eks, $listeks)){
@@ -121,24 +129,31 @@
                                                 move_uploaded_file($_FILES['bukti']['tmp_name'], $folder.$namabukti);
                                 
                                                 // Check if there are existing responses
-                                                $query = mysqli_query($koneksi, "SELECT tanggapan, bukti FROM tanggapan WHERE id_pengaduan='".$r['id_pengaduan']."'");
+                                                $query = mysqli_query($koneksi, "SELECT tanggapan, bukti, tgl_tanggapan FROM tanggapan WHERE id_pengaduan='".$r['id_pengaduan']."'");
                                                 $row = mysqli_fetch_assoc($query);
                                                 if($row){
                                                     // If there are existing responses, append the new response data to the existing JSON data
                                                     $existingTanggapan = json_decode($row['tanggapan'], true);
-                                                    $existingTanggapan[] = $tanggapan; // Append the new response message
+                                                    $existingTanggapan[] = $tanggapan;
+                                                    
                                                     $existingBukti = json_decode($row['bukti'], true);
-                                                    $existingBukti[] = array('nama' => $namabukti); // Append the new response attachment
+                                                    $existingBukti[] = $namabukti;
+                                                    
+                                                    $existingTglTanggapan = json_decode($row['tgl_tanggapan'], true);
+                                                    $existingTglTanggapan[] = $tgl;
+
                                                     $newTanggapan = json_encode($existingTanggapan);
                                                     $newNamabuktiJson = json_encode($existingBukti);
+                                                    $newTglTanggapanJson = json_encode($existingTglTanggapan);
                                 
                                                     // Update the database with the new JSON data
-                                                    $update = mysqli_query($koneksi, "UPDATE tanggapan SET tanggapan='$newTanggapan', bukti='$newNamabuktiJson' WHERE id_pengaduan='".$r['id_pengaduan']."'");
+                                                    $update = mysqli_query($koneksi, "UPDATE tanggapan SET tanggapan='$newTanggapan', bukti='$newNamabuktiJson', tgl_tanggapan='$newTglTanggapanJson' WHERE id_pengaduan='".$r['id_pengaduan']."'");
                                                 } else {
                                                     // If there are no existing responses, insert the new response data normally
                                                     $newTanggapan = json_encode(array($tanggapan));
-                                                    $newNamabuktiJson = json_encode(array(array('nama' => $namabukti)));
-                                                    $insert = mysqli_query($koneksi, "INSERT INTO tanggapan VALUES (NULL, '".$r['id_pengaduan']."', '".$tgl."', '$newTanggapan', '$newNamabuktiJson', '".$_SESSION['data']['id_petugas']."')");
+                                                    $newNamabuktiJson = json_encode(array($namabukti));
+                                                    $newTglTanggapanJson = json_encode(array($tgl));
+                                                    $insert = mysqli_query($koneksi, "INSERT INTO tanggapan VALUES (NULL, '".$r['id_pengaduan']."', '".$newTglTanggapanJson."', '$newTanggapan', '$newNamabuktiJson', '".$_SESSION['data']['id_petugas']."')");
                                                 }
                                 
                                                 if($update || $insert){
@@ -160,7 +175,8 @@
                                 
                                 //! TAMBAH TERUS TERUSSAN !!!
                                 if(isset($_POST['tambahTanggapi'])){
-                                    $tgl = date('Y-m-d');
+                                    date_default_timezone_set('Asia/Jakarta');
+                                    $tgl = date('Y-m-d H:i:s');
                                     $tanggapan = $_POST['tanggapan']; // Get the response message directly, no need to encode it again
                                     $newBukti = $_FILES['bukti']['name'];
                                     $folder = './../img/';
@@ -169,7 +185,7 @@
                                     $eks = $pecah['1'];
                                     $size = $_FILES['bukti']['size'];
                                     $namabukti = date('dmYis').$newBukti;
-                                    $namabukti_json = json_encode(array('nama' => $namabukti));
+                                    $namabukti_json = json_encode($namabukti);
                                 
                                     if($newBukti != ""){
                                         if(in_array($eks, $listeks)){
@@ -177,24 +193,31 @@
                                                 move_uploaded_file($_FILES['bukti']['tmp_name'], $folder.$namabukti);
                                 
                                                 // Check if there are existing responses
-                                                $query = mysqli_query($koneksi, "SELECT tanggapan, bukti FROM tanggapan WHERE id_pengaduan='".$r['id_pengaduan']."'");
+                                                $query = mysqli_query($koneksi, "SELECT tanggapan, bukti, tgl_tanggapan FROM tanggapan WHERE id_pengaduan='".$r['id_pengaduan']."'");
                                                 $row = mysqli_fetch_assoc($query);
                                                 if($row){
                                                     // If there are existing responses, append the new response data to the existing JSON data
                                                     $existingTanggapan = json_decode($row['tanggapan'], true);
                                                     $existingTanggapan[] = $tanggapan; // Append the new response message
+                                                    
                                                     $existingBukti = json_decode($row['bukti'], true);
-                                                    $existingBukti[] = array('nama' => $namabukti); // Append the new response attachment
+                                                    $existingBukti[] = $namabukti;
+                                                    
+                                                    $existingTglTanggapan = json_decode($row['tgl_tanggapan'], true);
+                                                    $existingTglTanggapan[] = $tgl;
+                                                    
                                                     $newTanggapan = json_encode($existingTanggapan);
                                                     $newNamabuktiJson = json_encode($existingBukti);
+                                                    $newTglTanggapanJson = json_encode($existingTglTanggapan);
                                 
                                                     // Update the database with the new JSON data
-                                                    $insert = mysqli_query($koneksi, "UPDATE tanggapan SET tanggapan='$newTanggapan', bukti='$newNamabuktiJson' WHERE id_pengaduan='".$r['id_pengaduan']."'");
+                                                    $insert = mysqli_query($koneksi, "UPDATE tanggapan SET tanggapan='$newTanggapan', bukti='$newNamabuktiJson', tgl_tanggapan='$newTglTanggapanJson' WHERE id_pengaduan='".$r['id_pengaduan']."'");
                                                 } else {
                                                     // If there are no existing responses, insert the new response data normally
                                                     $newTanggapan = json_encode(array($tanggapan));
-                                                    $newNamabuktiJson = json_encode(array(array('nama' => $namabukti)));
-                                                    $insert = mysqli_query($koneksi, "INSERT INTO tanggapan VALUES (NULL, '".$r['id_pengaduan']."', '".$tgl."', '$newTanggapan', '$newNamabuktiJson', '".$_SESSION['data']['id_petugas']."')");
+                                                    $newNamabuktiJson = json_encode(array($namabukti));
+                                                    $newTglTanggapanJson = json_encode(array($tgl));
+                                                    $insert = mysqli_query($koneksi, "INSERT INTO tanggapan VALUES (NULL, '".$r['id_pengaduan']."', '".$newTglTanggapanJson."', '$newTanggapan', '$newNamabuktiJson', '".$_SESSION['data']['id_petugas']."')");
                                                 }
                                 
                                                 if($update || $insert){

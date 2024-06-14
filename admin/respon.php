@@ -62,7 +62,7 @@
 					for($i = 0; $i < $maxIterations; $i++) {
 					$tanggapan = isset($tanggapanData[$i]) ? $tanggapanData[$i] : '';
 					$bukti = isset($buktiData[$i]) ? $buktiData[$i]['nama'] : '';
-					echo "<br><b>Tanggapan " . ($i + 1) . "</b><br>";
+					echo "<hr><br><b>Tanggapan " . ($i + 1) . "</b><br></hr>";
 					echo "<br>";
 					echo "<p>$tanggapan</p>";
 					echo "<br><b>Bukti " . ($i + 1) . "</b><br>";
@@ -70,7 +70,7 @@
 					}
 				?>
 				 <!-- Feedback Section -->
-				 <br><b>Penilaian</b>
+				 <hr><br><b>Penilaian</b></hr>
 				<p>
 					<?php 
 					// Assuming $r['penilaian'] contains the feedback fetched from the database

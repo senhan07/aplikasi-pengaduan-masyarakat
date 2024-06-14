@@ -6,6 +6,7 @@
 				<th>Nama</th>
 				<th>Judul Laporan</th>
 				<th>Tanggal Masuk</th>
+				<th>Jam Posting</th>
 				<th>Status</th>
 				<th>Opsi</th>
               </tr>
@@ -19,7 +20,9 @@
 						<td><?php echo $r['nik']; ?></td>
 						<td><?php echo $r['nama']; ?></td>
 						<td><?php echo $r['judul']; ?></td>
-						<td><?php echo $r['tgl_pengaduan']; ?></td>
+						<!-- <td><?php echo $r['tgl_pengaduan']; ?></td> -->
+						<td><?php echo date('Y-m-d', strtotime($r['tgl_pengaduan'])); ?></td>
+                    	<td><?php echo date('H:i:s', strtotime($r['tgl_pengaduan'])); ?></td>
 						<td><?php echo $r['status']; ?></td>
 						<td>
 							<a class="btn blue modal-trigger" href="#tanggapan&id_pengaduan=<?php echo $r['id_pengaduan'] ?>">DETAIL</a> 
@@ -33,7 +36,7 @@
             	<p>Dari : <?php echo $r['nama']; ?></p>
 				<p>Judul : <?php echo $r['judul']; ?></p>
 				<p>Tanggal Masuk : <?php echo $r['tgl_pengaduan']; ?></p>
-				<p>Tanggal Ditanggapi : <?php echo $r['tgl_tanggapan']; ?></p>
+				<!-- <p>Tanggal Ditanggapi : <?php echo $r['tgl_tanggapan']; ?></p> -->
 				<?php 
 					if($r['foto']=="kosong"){ ?>
 						<img src="../img/noImage.png" width="100">
@@ -47,21 +50,24 @@
 					// Decode JSON strings for tanggapan and bukti
 					$tanggapanData = json_decode($r['tanggapan'], true);
 					$buktiData = json_decode($r['bukti'], true);
+					$tgl_tanggapanData = json_decode($r['tgl_tanggapan'], true);
 
 					// Loop through tanggapan and bukti arrays and display them alternately
 					$numTanggapan = count($tanggapanData);
 					$numBukti = count($buktiData);
 					$maxIterations = max($numTanggapan, $numBukti);
 					for($i = 0; $i < $maxIterations; $i++) {
-					$tanggapan = isset($tanggapanData[$i]) ? $tanggapanData[$i] : '';
-					$bukti = isset($buktiData[$i]) ? $buktiData[$i]['nama'] : '';
-					echo "<br><b>Tanggapan " . ($i + 1) . "</b><br>";
-					echo "<br>";
-					echo "<p>$tanggapan</p>";
-					echo "<br><b>Bukti " . ($i + 1) . "</b><br>";
-					echo "<a href='../img/$bukti' target='_blank'><img width='100' src='../img/$bukti'></a>";
+						$tanggapan = isset($tanggapanData[$i]) ? $tanggapanData[$i] : '';
+						$bukti = isset($buktiData[$i]) ? $buktiData[$i] : '';
+						$tgl_tanggapan = isset($tgl_tanggapanData[$i]) ? $tgl_tanggapanData[$i] : '';
+						echo "<br><b>Tanggapan " . ($i + 1) . "</b> - " . $tgl_tanggapan . "<br>";
+						// echo "<br>";
+						echo "<p>$tanggapan</p>";
+						echo "<b>Bukti " . ($i + 1) . "</b><br>";
+						echo "<a href='../img/$bukti' target='_blank'><img width='100' src='../img/$bukti'></a><hr>";
 					}
 				?>
+				<br>
 				<div id="feedback-section" class="col s12">
 					<button class="btn-flat" id="happy-button" onclick="sendFeedback('<?php echo $r['id_pengaduan']; ?>', 'happy')">😊 Puas</button>
 					<button class="btn-flat" id="sad-button" onclick="sendFeedback('<?php echo $r['id_pengaduan']; ?>', 'sad')">😞 Tidak Puas</button>
